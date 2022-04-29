@@ -98,8 +98,10 @@ class MLP:
 
 
 def main():
-    # Try it with different seeds! Do you get different decision boundaries?
-    # Does it always converge?
+    # Try it with different seeds!
+    #   Do you get different decision boundaries?
+    #   Does it always converge?
+
     np.random.seed(1)
     # np.random.seed(7)
 
@@ -107,16 +109,17 @@ def main():
     X = np.array([[1, 1], [1, 0], [0, 1], [0, 0]],
                  dtype=float)
     y = np.array([[0], [1], [1], [0]], dtype=float)
-
     mlp = MLP()
+
     # plot decision boundary before training
     plot_decision_regions(X, y, mlp)
     plt.show()
 
     mlp.fit(X, y)  # , quiet=False)
-    print("{:.0f}% accuracy".format(100 * np.mean((mlp.predict(X) > 0.5) == y)))
-    print(mlp.W1)
-    print(mlp.W2)
+    print("{:.0f}% accuracy".format(
+        100 * np.mean((mlp.predict(X) > 0.5) == y)))
+    print(np.round(mlp.W1, 2))
+    print(np.round(mlp.W2, 2))
 
     # plot the new decision boundaries
     plot_decision_regions(X, y, mlp)
