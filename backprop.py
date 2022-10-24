@@ -57,19 +57,19 @@ class MLP:
         # ∂L/∂pred
         pd_loss = cross_entropy_gradient(y_true, y_pred)
         # ∂sigmoid(x)/∂x
-        pd_sigmoid = sigmoid_gradient(self.params['W2 @ g(W1 @ X)'])
+        pd_second_sigmoid = sigmoid_gradient(self.params['W2 @ g(W1 @ X)'])
         # ∂(W2 @ g(W1 @ X))/∂ W2
         pd_matmul = self.params['g(W1 @ X)']
 
-        # save the w2_loss that captures cross entropy and final sigmoid
-        w2_loss = pd_loss * pd_sigmoid
-        w2_update = np.mean(w2_loss * pd_matmul, axis=0, keepdims=True)
+        # save the post_w2_loss that captures cross entropy and final sigmoid
+        post_w2_loss = pd_loss * pd_second_sigmoid
+        w2_update = np.mean(post_w2_loss * pd_matmul, axis=0, keepdims=True)
         
         # ∂(W2 @ g(W1 @ X))/∂ g(W1 @ X)
         pd_W2_g = self.W2
         # ∂sigmoid(x)/∂x
-        pd_sigmoid = sigmoid_gradient(self.params['W1 @ X'])
-        # ∂(W1 @ X) /∂X
+        pd_first_sigmoid = sigmoid_gradient(self.params['W1 @ X'])
+        # ∂(W1 @ X) /∂W1
         pd_W1_X = self.params['X']
 
         w1_update = np.zeros_like(self.W1)
@@ -77,7 +77,7 @@ class MLP:
         # for each node in the hidden layer ...
         for i in range(self.W1.shape[1]):
             # ... only grab the losses for one specific hidden node
-            w1_loss = w2_loss * pd_W2_g[i + 1] * pd_sigmoid[:, (i, )]
+            w1_loss = post_w2_loss * pd_W2_g[i + 1] * pd_first_sigmoid[:, (i, )]
             w1_update[:, i] = np.mean(
                 w1_loss * pd_W1_X, axis=0, keepdims=True)
 
