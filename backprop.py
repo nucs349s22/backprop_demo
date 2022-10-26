@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -24,9 +25,9 @@ def cross_entropy_gradient(y_true, y_pred):
 
 
 class MLP:
-    def __init__(self, learning_rate=1):
-        self.W1 = np.random.normal(0, 0.1, [3, 2])
-        self.W2 = np.random.normal(0, 0.1, [3, 1])
+    def __init__(self, learning_rate=1, n_hidden_nodes=8, init_std=0.1):
+        self.W1 = np.random.normal(0, init_std, [3, n_hidden_nodes])
+        self.W2 = np.random.normal(0, init_std, [1 + n_hidden_nodes, 1])
 
         self.activation = sigmoid
         self.lr = learning_rate
@@ -98,24 +99,40 @@ class MLP:
 
 
 def main():
-    # Try it with different seeds!
-    #   Do you get different decision boundaries?
-    #   Does it always converge?
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--lr", type=float, default=1)
+    parser.add_argument("--init_std", type=float, default=0.1)
+    parser.add_argument("--bonus", action="store_true")
+    parser.add_argument("--n_hidden_nodes", type=int, default=2)
+    parser.add_argument("--n_iters", type=int, default=10000)
+    parser.add_argument("--plot_before", action="store_true")
+    parser.add_argument("--verbose", action="store_true")
+    args = parser.parse_args()
 
-    np.random.seed(1)
-    # np.random.seed(7)
+    np.random.seed(args.seed)
 
     # xor dataset
     X = np.array([[1, 1], [1, 0], [0, 1], [0, 0]],
                  dtype=float)
     y = np.array([[0], [1], [1], [0]], dtype=float)
-    mlp = MLP()
 
-    # plot decision boundary before training
-    plot_decision_regions(X, y, mlp)
-    plt.show()
+    if args.bonus:
+        X_bonus = np.array([[0.25, 0.75], [0.5, 0.5], [0.75, 0.25]])
+        y_bonus = np.array([[0], [1], [0]])
+        X = np.concatenate([X, X_bonus], axis=0)
+        y = np.concatenate([y, y_bonus], axis=0)
 
-    mlp.fit(X, y)  # , quiet=False)
+    mlp = MLP(learning_rate=args.lr,
+              init_std=args.init_std,
+              n_hidden_nodes=args.n_hidden_nodes)
+
+    if args.plot_before:
+        plot_decision_regions(X, y, mlp)
+        plt.show()
+
+    mlp.fit(X, y, quiet=not args.verbose, steps=args.n_iters)
+
     print("{:.0f}% accuracy".format(
         100 * np.mean((mlp.predict(X) > 0.5) == y)))
     print(np.round(mlp.W1, 2))
@@ -127,5 +144,7 @@ def main():
     plt.close('all')
 
 
+# python backprop.py --bonus --verbose --n_iter 10000
+# python backprop.py --bonus --verbose --n_iter 20000
 if __name__ == "__main__":
     main()

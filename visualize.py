@@ -71,13 +71,13 @@ def plot_decision_regions(
     row_idx_neg = np.where(targets < 0.5)[0]
     axis.scatter(
         features[row_idx_neg, 0], features[row_idx_neg, 1],
-        cmap=binary_cmap, label='negative')
+        label='negative')
 
     # plot "positive" class:
     row_idx_pos = np.where(targets > 0.5)[0]
     axis.scatter(
         features[row_idx_pos, 0], features[row_idx_pos, 1],
-        cmap=binary_cmap, label='positive')
+        label='positive')
 
     axis.set_title(title)
     axis.set_xlim(min1, max1)
